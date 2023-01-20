@@ -1124,7 +1124,11 @@ static CGColorRef blackColorRef = NULL;
 
   if (flags.setBackgroundColor) {
     view.backgroundColor = backgroundColor;
-    layer.backgroundColor = backgroundColor.CGColor;
+    if (@available(iOS 13.0, *)) {
+      layer.backgroundColor = [backgroundColor resolvedColorWithTraitCollection:view.traitCollection].CGColor;
+    } else {
+      layer.backgroundColor = backgroundColor.CGColor;
+    }
   }
 
   if (flags.setTintColor)
