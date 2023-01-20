@@ -37,6 +37,7 @@ typedef struct {
   int setFrame:1;
   int setBounds:1;
   int setBackgroundColor:1;
+  int setBorderDynamicColor:1;
   int setTintColor:1;
   int setHidden:1;
   int setAlpha:1;
@@ -105,6 +106,7 @@ static constexpr ASPendingStateFlags kZeroFlags = {0};
   CGRect frame;   // Frame is only to be used for synchronous views wrapped by nodes (see setFrame:)
   CGRect bounds;
   UIColor *backgroundColor;
+  UIColor *borderDynamicColor;
   UIColor *tintColor;
   CGFloat alpha;
   CGFloat cornerRadius;
@@ -428,6 +430,20 @@ static CGColorRef blackColorRef = NULL;
   }
   backgroundColor = color;
   _stateToApplyFlags.setBackgroundColor = YES;
+}
+
+- (UIColor *)borderDynamicColor
+{
+  return borderDynamicColor;
+}
+
+- (void)setBorderDynamicColor:(UIColor *)color
+{
+  if ([color isEqual:borderDynamicColor]) {
+    return;
+  }
+  borderDynamicColor = color;
+  _stateToApplyFlags.setBorderDynamicColor = YES;
 }
 
 - (UIColor *)tintColor

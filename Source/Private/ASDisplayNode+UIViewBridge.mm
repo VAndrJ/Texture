@@ -790,6 +790,36 @@ if (shouldApply) { _layer.layerProperty = (layerValueExpr); } else { ASDisplayNo
   }
 }
 
+- (UIColor *)borderDynamicColor
+{
+  _bridge_prologue_read;
+  if (_loaded(self)) {
+    return _borderDynamicColor;
+  }
+  return ASDisplayNodeGetPendingState(self).borderDynamicColor;
+}
+
+- (void)setBorderDynamicColor:(UIColor *)newColor
+{
+  _bridge_prologue_write;
+  BOOL shouldApply = ASDisplayNodeShouldApplyBridgedWriteToView(self);
+  if (shouldApply) {
+    UIColor *oldColor = _borderDynamicColor;
+    _borderDynamicColor = newColor;
+    if (@available(iOS 13.0, *)) {
+      _layer.borderColor = [_borderDynamicColor resolvedColorWithTraitCollection:ASPrimitiveTraitCollectionToUITraitCollection(_primitiveTraitCollection)].CGColor;
+    } else {
+      _layer.borderColor = _borderDynamicColor.CGColor;
+    }
+    if (![oldColor isEqual:newColor]) {
+      [self setNeedsDisplay];
+    }
+  } else {
+    _borderDynamicColor = newColor;
+    ASDisplayNodeGetPendingState(self).borderDynamicColor = newColor;
+  }
+}
+
 - (UIColor *)tintColor
 {
   __instanceLock__.lock();
