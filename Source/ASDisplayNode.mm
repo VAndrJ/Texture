@@ -468,6 +468,11 @@ ASSynthesizeLockingMethodsWithMutex(__instanceLock__);
             // and apply any changes here when trait collection updates occur.
             self->_layer.backgroundColor = cgBackgroundColor;
           }
+          UIColor *borderDynamicColor = self->_borderDynamicColor;
+          CGColorRef cgBorderDynamicColor = [borderDynamicColor resolvedColorWithTraitCollection:ASPrimitiveTraitCollectionToUITraitCollection(primitiveTraitCollection)].CGColor;
+          if (!CGColorEqualToColor(self->_layer.borderColor, cgBorderDynamicColor)) {
+            self->_layer.borderColor = cgBorderDynamicColor;
+          }
 
           // If we have clipping corners, re-render the clipping corner layer upon user interface style change
           if (cornerRoundingType == ASCornerRoundingTypeClipping && cornerRadius > 0.0f) {
