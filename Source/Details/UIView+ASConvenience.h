@@ -40,6 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, getter = isOpaque) BOOL opaque;
 @property (nonatomic) __attribute__((NSObject)) CGColorRef borderColor;
 @property (nonatomic) UIColor *backgroundColor;
+@property (nonatomic) UIColor *borderDynamicColor;
 @property (nonatomic) BOOL allowsGroupOpacity;
 @property (nonatomic) BOOL allowsEdgeAntialiasing;
 @property (nonatomic) CAEdgeAntialiasingMask edgeAntialiasingMask;
