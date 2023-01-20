@@ -1029,6 +1029,9 @@ static CGColorRef blackColorRef = NULL;
 
   if (flags.setBorderColor)
     layer.borderColor = borderColor;
+  
+  if (flags.setBorderDynamicColor) {
+    layer.borderColor = borderDynamicColor.CGColor;
 
   if (flags.setNeedsDisplayOnBoundsChange)
     layer.needsDisplayOnBoundsChange = _flags.needsDisplayOnBoundsChange;
@@ -1169,6 +1172,14 @@ static CGColorRef blackColorRef = NULL;
 
   if (flags.setBorderColor)
     layer.borderColor = borderColor;
+  
+  if (flags.setBorderDynamicColor) {
+    if (@available(iOS 13.0, *)) {
+      layer.borderColor = [borderDynamicColor resolvedColorWithTraitCollection:view.traitCollection].CGColor;
+    } else {
+      layer.borderColor = borderDynamicColor.CGColor;
+    }
+  }
 
   if (flags.setAutoresizingMask)
     view.autoresizingMask = autoresizingMask;
