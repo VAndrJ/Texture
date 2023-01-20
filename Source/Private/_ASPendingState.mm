@@ -443,7 +443,9 @@ static CGColorRef blackColorRef = NULL;
     return;
   }
   borderDynamicColor = color;
-  _stateToApplyFlags.setBorderDynamicColor = YES;
+  if (color) {
+    _stateToApplyFlags.setBorderDynamicColor = YES;
+  }
 }
 
 - (UIColor *)tintColor

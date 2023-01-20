@@ -804,14 +804,13 @@ if (shouldApply) { _layer.layerProperty = (layerValueExpr); } else { ASDisplayNo
   _bridge_prologue_write;
   BOOL shouldApply = ASDisplayNodeShouldApplyBridgedWriteToView(self);
   if (shouldApply) {
-    UIColor *oldColor = _borderDynamicColor;
-    _borderDynamicColor = newColor;
-    if (@available(iOS 13.0, *)) {
-      _layer.borderColor = [_borderDynamicColor resolvedColorWithTraitCollection:ASPrimitiveTraitCollectionToUITraitCollection(_primitiveTraitCollection)].CGColor;
-    } else {
-      _layer.borderColor = _borderDynamicColor.CGColor;
-    }
-    if (![oldColor isEqual:newColor]) {
+    if (![_borderDynamicColor isEqual:newColor]) {
+      _borderDynamicColor = newColor;
+      if (@available(iOS 13.0, *)) {
+        _layer.borderColor = [_borderDynamicColor resolvedColorWithTraitCollection:ASPrimitiveTraitCollectionToUITraitCollection(_primitiveTraitCollection)].CGColor;
+      } else {
+        _layer.borderColor = _borderDynamicColor.CGColor;
+      }
       [self setNeedsDisplay];
     }
   } else {
@@ -933,6 +932,9 @@ if (shouldApply) { _layer.layerProperty = (layerValueExpr); } else { ASDisplayNo
 - (void)setBorderColor:(CGColorRef)colorValue
 {
   _bridge_prologue_write;
+  if (_borderDynamicColor) {
+    return;
+  }
   _setToLayer(borderColor, colorValue);
 }
 
