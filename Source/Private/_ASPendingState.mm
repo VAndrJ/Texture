@@ -1030,7 +1030,7 @@ static CGColorRef blackColorRef = NULL;
   if (flags.setBorderColor)
     layer.borderColor = borderColor;
   
-  if (flags.setBorderDynamicColor) {
+  if (flags.setBorderDynamicColor)
     layer.borderColor = borderDynamicColor.CGColor;
 
   if (flags.setNeedsDisplayOnBoundsChange)
