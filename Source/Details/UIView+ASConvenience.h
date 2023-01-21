@@ -33,14 +33,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic) CATransform3D sublayerTransform;
 @property (nonatomic) BOOL needsDisplayOnBoundsChange;
 @property (nonatomic) __attribute__((NSObject)) CGColorRef shadowColor;
+@property (nonatomic) UIColor *shadowDynamicColor;
 @property (nonatomic) CGFloat shadowOpacity;
 @property (nonatomic) CGSize shadowOffset;
 @property (nonatomic) CGFloat shadowRadius;
 @property (nonatomic) CGFloat borderWidth;
 @property (nonatomic, getter = isOpaque) BOOL opaque;
 @property (nonatomic) __attribute__((NSObject)) CGColorRef borderColor;
-@property (nonatomic) UIColor *backgroundColor;
 @property (nonatomic) UIColor *borderDynamicColor;
+@property (nonatomic) UIColor *backgroundColor;
 @property (nonatomic) BOOL allowsGroupOpacity;
 @property (nonatomic) BOOL allowsEdgeAntialiasing;
 @property (nonatomic) CAEdgeAntialiasingMask edgeAntialiasingMask;

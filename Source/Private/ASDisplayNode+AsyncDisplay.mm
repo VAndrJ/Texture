@@ -183,7 +183,16 @@ using AS::MutexLocker;
   BOOL opaque = self.opaque;
   CGRect bounds = self.bounds;
   UIColor *backgroundColor = self.backgroundColor;
-  CGColorRef borderColor = self.borderColor;
+  CGColorRef borderColor;
+  if (self.borderDynamicColor) {
+    if (@available(iOS 13.0, *)) {
+      borderColor = [self.borderDynamicColor resolvedColorWithTraitCollection:ASPrimitiveTraitCollectionToUITraitCollection(self.primitiveTraitCollection)].CGColor;
+    } else {
+      borderColor = self.borderDynamicColor.CGColor;
+    }
+  } else {
+    borderColor = self.borderColor;
+  }
   CGFloat borderWidth = self.borderWidth;
   CGFloat contentsScaleForDisplay = _contentsScaleForDisplay;
     

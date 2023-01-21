@@ -883,6 +883,35 @@ if (shouldApply) { _layer.layerProperty = (layerValueExpr); } else { ASDisplayNo
   _setToLayer(shadowColor, colorValue);
 }
 
+- (UIColor *)shadowDynamicColor
+{
+  _bridge_prologue_read;
+  if (_loaded(self)) {
+    return _shadowDynamicColor;
+  }
+  return ASDisplayNodeGetPendingState(self).shadowDynamicColor;
+}
+
+- (void)setShadowDynamicColor:(UIColor *)newColor
+{
+  _bridge_prologue_write;
+  BOOL shouldApply = ASDisplayNodeShouldApplyBridgedWriteToView(self);
+  if (shouldApply) {
+    if (![_shadowDynamicColor isEqual:newColor]) {
+      _shadowDynamicColor = newColor;
+      if (@available(iOS 13.0, *)) {
+        _layer.shadowColor = [_shadowDynamicColor resolvedColorWithTraitCollection:ASPrimitiveTraitCollectionToUITraitCollection(_primitiveTraitCollection)].CGColor;
+      } else {
+        _layer.shadowColor = _shadowDynamicColor.CGColor;
+      }
+      [self setNeedsDisplay];
+    }
+  } else {
+    _shadowDynamicColor = newColor;
+    ASDisplayNodeGetPendingState(self).shadowDynamicColor = newColor;
+  }
+}
+
 - (CGFloat)shadowOpacity
 {
   _bridge_prologue_read;

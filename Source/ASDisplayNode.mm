@@ -459,6 +459,8 @@ ASSynthesizeLockingMethodsWithMutex(__instanceLock__);
           CGFloat cornerRadius = self->_cornerRadius;
           ASCornerRoundingType cornerRoundingType = self->_cornerRoundingType;
           UIColor *backgroundColor = self->_backgroundColor;
+          UIColor *borderDynamicColor = self->_borderDynamicColor;
+          UIColor *shadowDynamicColor = self->_shadowDynamicColor;
           self->__instanceLock__.unlock();
           CGColorRef cgBackgroundColor = [backgroundColor resolvedColorWithTraitCollection:ASPrimitiveTraitCollectionToUITraitCollection(primitiveTraitCollection)].CGColor;
           if (!CGColorEqualToColor(self->_layer.backgroundColor, cgBackgroundColor)) {
@@ -468,11 +470,16 @@ ASSynthesizeLockingMethodsWithMutex(__instanceLock__);
             // and apply any changes here when trait collection updates occur.
             self->_layer.backgroundColor = cgBackgroundColor;
           }
-          UIColor *borderDynamicColor = self->_borderDynamicColor;
           if (borderDynamicColor) {
             CGColorRef cgBorderDynamicColor = [borderDynamicColor resolvedColorWithTraitCollection:ASPrimitiveTraitCollectionToUITraitCollection(primitiveTraitCollection)].CGColor;
             if (!CGColorEqualToColor(self->_layer.borderColor, cgBorderDynamicColor)) {
               self->_layer.borderColor = cgBorderDynamicColor;
+            }
+          }
+          if (shadowDynamicColor) {
+            CGColorRef cgShadowDynamicColor = [shadowDynamicColor resolvedColorWithTraitCollection:ASPrimitiveTraitCollectionToUITraitCollection(primitiveTraitCollection)].CGColor;
+            if (!CGColorEqualToColor(self->_layer.shadowColor, cgShadowDynamicColor)) {
+              self->_layer.shadowColor = cgShadowDynamicColor;
             }
           }
 
@@ -3400,9 +3407,9 @@ ASDISPLAYNODE_INLINE BOOL subtreeIsRasterized(ASDisplayNode *node) {
   ASDisplayNodeAssertMainThread();
   DISABLED_ASAssertLocked(__instanceLock__);
   ASDisplayNodeAssert([self _locked_isNodeLoaded], @"Expected node to be loaded before applying pending state.");
-
+  
   if (_flags.layerBacked) {
-    [_pendingViewState applyToLayer:_layer];
+    [_pendingViewState applyToLayer:_layer traitCollection:ASPrimitiveTraitCollectionToUITraitCollection(_primitiveTraitCollection)];
   } else {
     BOOL specialPropertiesHandling = ASDisplayNodeNeedsSpecialPropertiesHandling(checkFlag(Synchronous), _flags.layerBacked);
     [_pendingViewState applyToView:_view withSpecialPropertiesHandling:specialPropertiesHandling];

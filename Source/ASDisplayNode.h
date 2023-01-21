@@ -708,6 +708,8 @@ ASDK_EXTERN NSInteger const ASDefaultDrawingPriority;
 
 @property (nullable, copy) UIColor *borderDynamicColor;        // default=nil
 
+@property (nullable, copy) UIColor *shadowDynamicColor;        // default=nil
+
 /**
  * Notifies the node when the tintColor has changed.
  *
