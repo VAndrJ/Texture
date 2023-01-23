@@ -459,6 +459,8 @@ ASSynthesizeLockingMethodsWithMutex(__instanceLock__);
           CGFloat cornerRadius = self->_cornerRadius;
           ASCornerRoundingType cornerRoundingType = self->_cornerRoundingType;
           UIColor *backgroundColor = self->_backgroundColor;
+          UIColor *borderDynamicColor = self->_borderDynamicColor;
+          UIColor *shadowDynamicColor = self->_shadowDynamicColor;
           UITraitCollection *traitCollection = ASPrimitiveTraitCollectionToUITraitCollection(primitiveTraitCollection);
           self->__instanceLock__.unlock();
           // TODO: - watch watch and observe:
@@ -470,6 +472,18 @@ ASSynthesizeLockingMethodsWithMutex(__instanceLock__);
             // We utilize the _backgroundColor instance variable to track the full dynamic color
             // and apply any changes here when trait collection updates occur.
             self->_layer.backgroundColor = cgBackgroundColor;
+          }
+          if (borderDynamicColor) {
+            CGColorRef cgBorderDynamicColor = [borderDynamicColor resolvedColorWithTraitCollection:traitCollection].CGColor;
+            if (!CGColorEqualToColor(self->_layer.borderColor, cgBorderDynamicColor)) {
+              self->_layer.borderColor = cgBorderDynamicColor;
+            }
+          }
+          if (shadowDynamicColor) {
+            CGColorRef cgShadowDynamicColor = [shadowDynamicColor resolvedColorWithTraitCollection:traitCollection].CGColor;
+            if (!CGColorEqualToColor(self->_layer.shadowColor, cgShadowDynamicColor)) {
+              self->_layer.shadowColor = cgShadowDynamicColor;
+            }
           }
 
           // If we have clipping corners, re-render the clipping corner layer upon user interface style change

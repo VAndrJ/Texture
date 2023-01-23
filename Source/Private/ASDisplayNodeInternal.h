@@ -152,6 +152,10 @@ static constexpr CACornerMask kASCACornerAllCorners =
 
   // Dynamic colors support
   UIColor *_backgroundColor;
+  
+  UIColor *_borderDynamicColor;
+  
+  UIColor *_shadowDynamicColor;
 
 @protected
   ASDisplayNode * __weak _supernode;

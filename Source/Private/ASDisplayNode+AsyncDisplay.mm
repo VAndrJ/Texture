@@ -63,6 +63,7 @@ using AS::MutexLocker;
   }
 
   // Capture these outside the display block so they are retained.
+  UITraitCollection *traitCollection = ASPrimitiveTraitCollectionToUITraitCollection(self.primitiveTraitCollection);
   UIColor *backgroundColor = self.backgroundColor;
   CGRect bounds = self.bounds;
   CGFloat cornerRadius = self.cornerRadius;
@@ -113,7 +114,7 @@ using AS::MutexLocker;
       // Fill background if any.
       CGColorRef backgroundCGColor;
       if (@available(iOS 13.0, *)) {
-        backgroundCGColor = [backgroundColor resolvedColorWithTraitCollection:ASPrimitiveTraitCollectionToUITraitCollection(self->_primitiveTraitCollection)].CGColor;
+        backgroundCGColor = [backgroundColor resolvedColorWithTraitCollection:traitCollection].CGColor;
       } else {
         backgroundCGColor = backgroundColor.CGColor;
       }
@@ -184,7 +185,16 @@ using AS::MutexLocker;
   BOOL opaque = self.opaque;
   CGRect bounds = self.bounds;
   UIColor *backgroundColor = self.backgroundColor;
-  CGColorRef borderColor = self.borderColor;
+  CGColorRef borderColor;
+  if (self.borderDynamicColor) {
+    if (@available(iOS 13.0, *)) {
+      borderColor = [self.borderDynamicColor resolvedColorWithTraitCollection:traitCollection].CGColor;
+    } else {
+      borderColor = self.borderDynamicColor.CGColor;
+    }
+  } else {
+    borderColor = self.borderColor;
+  }
   CGFloat borderWidth = self.borderWidth;
   CGFloat contentsScaleForDisplay = _contentsScaleForDisplay;
     
