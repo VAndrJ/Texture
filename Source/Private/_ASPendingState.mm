@@ -37,6 +37,7 @@ typedef struct {
   int setFrame:1;
   int setBounds:1;
   int setBackgroundColor:1;
+  int setBorderDynamicColor:1;
   int setTintColor:1;
   int setHidden:1;
   int setAlpha:1;
@@ -57,6 +58,7 @@ typedef struct {
   int setUserInteractionEnabled:1;
   int setExclusiveTouch:1;
   int setShadowColor:1;
+  int setShadowDynamicColor:1;
   int setShadowOpacity:1;
   int setShadowOffset:1;
   int setShadowRadius:1;
@@ -121,11 +123,13 @@ static constexpr ASPendingStateFlags kZeroFlags = {0};
   CGFloat contentsScale;
   CGFloat rasterizationScale;
   CGColorRef shadowColor;
+  UIColor *shadowDynamicColor;
   CGFloat shadowOpacity;
   CGSize shadowOffset;
   CGFloat shadowRadius;
   CGFloat borderWidth;
   CGColorRef borderColor;
+  UIColor *borderDynamicColor;
   UIEdgeInsets layoutMargins;
   NSString *accessibilityLabel;
   NSAttributedString *accessibilityAttributedLabel;
@@ -214,11 +218,13 @@ ASDISPLAYNODE_INLINE void ASPendingStateApplyMetricsToLayer(_ASPendingState *sta
 @synthesize userInteractionEnabled=userInteractionEnabled;
 @synthesize exclusiveTouch=exclusiveTouch;
 @synthesize shadowColor=shadowColor;
+@synthesize shadowDynamicColor=shadowDynamicColor;
 @synthesize shadowOpacity=shadowOpacity;
 @synthesize shadowOffset=shadowOffset;
 @synthesize shadowRadius=shadowRadius;
 @synthesize borderWidth=borderWidth;
 @synthesize borderColor=borderColor;
+@synthesize borderDynamicColor=borderDynamicColor;
 @synthesize asyncdisplaykit_asyncTransactionContainer=asyncTransactionContainer;
 @synthesize semanticContentAttribute=semanticContentAttribute;
 @synthesize layoutMargins=layoutMargins;
@@ -273,11 +279,13 @@ static CGColorRef blackColorRef = NULL;
   rasterizationScale = 1.0f;
   _flags.userInteractionEnabled = YES;
   shadowColor = blackColorRef;
+  shadowDynamicColor = nil;
   shadowOpacity = 0.0;
   shadowOffset = CGSizeMake(0, -3);
   shadowRadius = 3;
   borderWidth = 0;
   borderColor = blackColorRef;
+  borderDynamicColor = nil;
   layoutMargins = UIEdgeInsetsMake(8, 8, 8, 8);
   _flags.preservesSuperviewLayoutMargins = NO;
   _flags.insetsLayoutMarginsFromSafeArea = YES;
@@ -578,6 +586,9 @@ static CGColorRef blackColorRef = NULL;
 
 - (void)setShadowColor:(CGColorRef)color
 {
+  if (shadowDynamicColor) {
+    return;
+  }
   if (shadowColor == color) {
     return;
   }
@@ -589,6 +600,20 @@ static CGColorRef blackColorRef = NULL;
   CGColorRetain(shadowColor);
 
   _stateToApplyFlags.setShadowColor = YES;
+}
+
+- (UIColor *)shadowDynamicColor
+{
+  return shadowDynamicColor;
+}
+
+- (void)setShadowDynamicColor:(UIColor *)color
+{
+  if ([shadowDynamicColor isEqual:color]) {
+    return;
+  }
+  shadowDynamicColor = color;
+  _stateToApplyFlags.setShadowDynamicColor = YES;
 }
 
 - (void)setShadowOpacity:(CGFloat)newOpacity
@@ -617,6 +642,9 @@ static CGColorRef blackColorRef = NULL;
 
 - (void)setBorderColor:(CGColorRef)color
 {
+  if (borderDynamicColor) {
+    return;
+  }
   if (borderColor == color) {
     return;
   }
@@ -628,6 +656,20 @@ static CGColorRef blackColorRef = NULL;
   CGColorRetain(borderColor);
 
   _stateToApplyFlags.setBorderColor = YES;
+}
+
+- (UIColor *)borderDynamicColor
+{
+  return borderDynamicColor;
+}
+
+- (void)setBorderDynamicColor:(UIColor *)color
+{
+  if ([color isEqual:borderDynamicColor]) {
+    return;
+  }
+  borderDynamicColor = color;
+  _stateToApplyFlags.setBorderDynamicColor = YES;
 }
 
 - (void)asyncdisplaykit_setAsyncTransactionContainer:(BOOL)flag
@@ -929,7 +971,7 @@ static CGColorRef blackColorRef = NULL;
   }
 }
 
-- (void)applyToLayer:(CALayer *)layer
+- (void)applyToLayer:(CALayer *)layer traitCollection:(UITraitCollection *)traitCollection
 {
   ASPendingStateFlags flags = _stateToApplyFlags;
 
@@ -970,8 +1012,13 @@ static CGColorRef blackColorRef = NULL;
   if (flags.setClipsToBounds)
     layer.masksToBounds = _flags.clipsToBounds;
 
-  if (flags.setBackgroundColor)
-    layer.backgroundColor = backgroundColor.CGColor;
+  if (flags.setBackgroundColor) {
+    if (@available(iOS 13.0, *)) {
+      layer.backgroundColor = [backgroundColor resolvedColorWithTraitCollection:traitCollection].CGColor;
+    } else {
+      layer.backgroundColor = backgroundColor.CGColor;
+    }
+  }
 
   if (flags.setOpaque)
     layer.opaque = _flags.opaque;
@@ -996,6 +1043,16 @@ static CGColorRef blackColorRef = NULL;
 
   if (flags.setShadowColor)
     layer.shadowColor = shadowColor;
+  
+  if (flags.setShadowDynamicColor) {
+    if (shadowDynamicColor) {
+      if (@available(iOS 13.0, *)) {
+        layer.shadowColor = [shadowDynamicColor resolvedColorWithTraitCollection:traitCollection].CGColor;
+      } else {
+        layer.shadowColor = shadowDynamicColor.CGColor;
+      }
+    }
+  }
 
   if (flags.setShadowOpacity)
     layer.shadowOpacity = shadowOpacity;
@@ -1011,6 +1068,16 @@ static CGColorRef blackColorRef = NULL;
 
   if (flags.setBorderColor)
     layer.borderColor = borderColor;
+  
+  if (flags.setBorderDynamicColor) {
+    if (borderDynamicColor) {
+      if (@available(iOS 13.0, *)) {
+        layer.borderColor = [borderDynamicColor resolvedColorWithTraitCollection:traitCollection].CGColor;
+      } else {
+        layer.borderColor = borderDynamicColor.CGColor;
+      }
+    }
+  }
 
   if (flags.setNeedsDisplayOnBoundsChange)
     layer.needsDisplayOnBoundsChange = _flags.needsDisplayOnBoundsChange;
@@ -1103,7 +1170,11 @@ static CGColorRef blackColorRef = NULL;
 
   if (flags.setBackgroundColor) {
     view.backgroundColor = backgroundColor;
-    layer.backgroundColor = backgroundColor.CGColor;
+    if (@available(iOS 13.0, *)) {
+      layer.backgroundColor = [backgroundColor resolvedColorWithTraitCollection:view.traitCollection].CGColor;
+    } else {
+      layer.backgroundColor = backgroundColor.CGColor;
+    }
   }
 
   if (flags.setTintColor)
@@ -1136,6 +1207,16 @@ static CGColorRef blackColorRef = NULL;
     
   if (flags.setShadowColor)
     layer.shadowColor = shadowColor;
+  
+  if (flags.setShadowDynamicColor) {
+    if (shadowDynamicColor) {
+      if (@available(iOS 13.0, *)) {
+        layer.shadowColor = [shadowDynamicColor resolvedColorWithTraitCollection:view.traitCollection].CGColor;
+      } else {
+        layer.shadowColor = shadowDynamicColor.CGColor;
+      }
+    }
+  }
 
   if (flags.setShadowOpacity)
     layer.shadowOpacity = shadowOpacity;
@@ -1151,6 +1232,16 @@ static CGColorRef blackColorRef = NULL;
 
   if (flags.setBorderColor)
     layer.borderColor = borderColor;
+  
+  if (flags.setBorderDynamicColor) {
+    if (borderDynamicColor) {
+      if (@available(iOS 13.0, *)) {
+        layer.borderColor = [borderDynamicColor resolvedColorWithTraitCollection:view.traitCollection].CGColor;
+      } else {
+        layer.borderColor = borderDynamicColor.CGColor;
+      }
+    }
+  }
 
   if (flags.setAutoresizingMask)
     view.autoresizingMask = autoresizingMask;

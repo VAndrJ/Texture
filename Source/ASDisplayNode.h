@@ -726,11 +726,13 @@ ASDK_EXTERN NSInteger const ASDefaultDrawingPriority;
 @property            UISemanticContentAttribute semanticContentAttribute;
 
 @property (nullable) CGColorRef shadowColor;                // default=opaque rgb black
+@property (nullable, copy) UIColor *shadowDynamicColor;     // default=nil. When set, `shadowColor` is ignored
 @property            CGFloat shadowOpacity;                 // default=0.0
 @property            CGSize shadowOffset;                   // default=(0, -3)
 @property            CGFloat shadowRadius;                  // default=3
 @property            CGFloat borderWidth;                   // default=0
 @property (nullable) CGColorRef borderColor;                // default=opaque rgb black
+@property (nullable, copy) UIColor *borderDynamicColor;     // default=nil. When set, `borderColor` is ignored
 
 @property            BOOL allowsGroupOpacity;
 @property            BOOL allowsEdgeAntialiasing;
