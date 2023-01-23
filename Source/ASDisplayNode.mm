@@ -459,10 +459,11 @@ ASSynthesizeLockingMethodsWithMutex(__instanceLock__);
           CGFloat cornerRadius = self->_cornerRadius;
           ASCornerRoundingType cornerRoundingType = self->_cornerRoundingType;
           UIColor *backgroundColor = self->_backgroundColor;
+          UITraitCollection *traitCollection = ASPrimitiveTraitCollectionToUITraitCollection(primitiveTraitCollection);
           self->__instanceLock__.unlock();
-          // TODO: we should resolve color using node's trait collection
+          // TODO: - watch watch and observe:
           // but Texture changes it from many places, so we may receive the wrong one.
-          CGColorRef cgBackgroundColor = backgroundColor.CGColor;
+          CGColorRef cgBackgroundColor = [backgroundColor resolvedColorWithTraitCollection:traitCollection].CGColor;
           if (!CGColorEqualToColor(self->_layer.backgroundColor, cgBackgroundColor)) {
             // Background colors do not dynamically update for layer backed nodes since they utilize CGColorRef
             // instead of UIColor. Non layer backed node also receive color to the layer (see [_ASPendingState -applyToView:withSpecialPropertiesHandling:]).
@@ -3397,7 +3398,7 @@ ASDISPLAYNODE_INLINE BOOL subtreeIsRasterized(ASDisplayNode *node) {
   ASDisplayNodeAssert([self _locked_isNodeLoaded], @"Expected node to be loaded before applying pending state.");
 
   if (_flags.layerBacked) {
-    [_pendingViewState applyToLayer:_layer];
+    [_pendingViewState applyToLayer:_layer traitCollection:ASPrimitiveTraitCollectionToUITraitCollection(_primitiveTraitCollection)];
   } else {
     BOOL specialPropertiesHandling = ASDisplayNodeNeedsSpecialPropertiesHandling(checkFlag(Synchronous), _flags.layerBacked);
     [_pendingViewState applyToView:_view withSpecialPropertiesHandling:specialPropertiesHandling];

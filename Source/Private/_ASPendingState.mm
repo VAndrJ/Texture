@@ -929,7 +929,7 @@ static CGColorRef blackColorRef = NULL;
   }
 }
 
-- (void)applyToLayer:(CALayer *)layer
+- (void)applyToLayer:(CALayer *)layer traitCollection:(UITraitCollection *)traitCollection
 {
   ASPendingStateFlags flags = _stateToApplyFlags;
 
@@ -970,8 +970,13 @@ static CGColorRef blackColorRef = NULL;
   if (flags.setClipsToBounds)
     layer.masksToBounds = _flags.clipsToBounds;
 
-  if (flags.setBackgroundColor)
-    layer.backgroundColor = backgroundColor.CGColor;
+  if (flags.setBackgroundColor) {
+    if (@available(iOS 13.0, *)) {
+      layer.backgroundColor = [backgroundColor resolvedColorWithTraitCollection:traitCollection].CGColor;
+    } else {
+      layer.backgroundColor = backgroundColor.CGColor;
+    }
+  }
 
   if (flags.setOpaque)
     layer.opaque = _flags.opaque;
@@ -1103,7 +1108,11 @@ static CGColorRef blackColorRef = NULL;
 
   if (flags.setBackgroundColor) {
     view.backgroundColor = backgroundColor;
-    layer.backgroundColor = backgroundColor.CGColor;
+    if (@available(iOS 13.0, *)) {
+      layer.backgroundColor = [backgroundColor resolvedColorWithTraitCollection:view.traitCollection].CGColor;
+    } else {
+      layer.backgroundColor = backgroundColor.CGColor;
+    }
   }
 
   if (flags.setTintColor)

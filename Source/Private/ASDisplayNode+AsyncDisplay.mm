@@ -111,7 +111,12 @@ using AS::MutexLocker;
       }
 
       // Fill background if any.
-      CGColorRef backgroundCGColor = backgroundColor.CGColor;
+      CGColorRef backgroundCGColor;
+      if (@available(iOS 13.0, *)) {
+        backgroundCGColor = [backgroundColor resolvedColorWithTraitCollection:ASPrimitiveTraitCollectionToUITraitCollection(self->_primitiveTraitCollection)].CGColor;
+      } else {
+        backgroundCGColor = backgroundColor.CGColor;
+      }
       if (backgroundColor && CGColorGetAlpha(backgroundCGColor) > 0.0) {
         CGContextSetFillColorWithColor(context, backgroundCGColor);
         CGContextFillRect(context, bounds);
@@ -175,6 +180,7 @@ using AS::MutexLocker;
     return nil;
   }
   
+  UITraitCollection *traitCollection = ASPrimitiveTraitCollectionToUITraitCollection(self.primitiveTraitCollection);
   BOOL opaque = self.opaque;
   CGRect bounds = self.bounds;
   UIColor *backgroundColor = self.backgroundColor;
@@ -204,7 +210,11 @@ using AS::MutexLocker;
     
     // If [UIColor clearColor] or another semitransparent background color is used, include alpha channel when rasterizing.
     // Unlike CALayer drawing, we include the backgroundColor as a base during rasterization.
-    opaque = opaque && CGColorGetAlpha(backgroundColor.CGColor) == 1.0f;
+    if (@available(iOS 13.0, *)) {
+      opaque = opaque && CGColorGetAlpha([backgroundColor resolvedColorWithTraitCollection:traitCollection].CGColor) == 1.0f;
+    } else {
+      opaque = opaque && CGColorGetAlpha(backgroundColor.CGColor) == 1.0f;
+    }
 
     displayBlock = ^id{
       CHECK_CANCELLED_AND_RETURN_NIL();
